@@ -8,8 +8,12 @@ import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
@@ -54,7 +58,7 @@ class weather
 	{
 		
 		try {
-		URL url = new URL("http://api.openweathermap.org/data/2.5/forecast?q=London,uk&units=metric&APPID=8032cb689d95229e594b7c5751da6355");
+		URL url = new URL("http://api.openweathermap.org/data/2.5/forecast?q=london&units=metric&APPID=8032cb689d95229e594b7c5751da6355");
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -81,34 +85,43 @@ class weather
             //Using the JSON simple library parse the string into a json object
             JSONParser parse = new JSONParser();
             JSONObject data_obj = (JSONObject) parse.parse(inline);
-
+            
+            String prev_date="";
+     		SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+     		String today_date=formater.format(new Date());
+        	JSONObject cityy = (JSONObject) data_obj.get("city");
+            
             JSONArray arr = (JSONArray) data_obj.get("list");
             
             for(int i=0,j=0;i<arr.size() && j<3;i++)
             {
             	JSONObject new_obj = (JSONObject) arr.get(i);
             	JSONObject mainy = (JSONObject) new_obj.get("main");
+            	JSONArray wthr = (JSONArray) new_obj.get("weather");
+            	JSONObject windy = (JSONObject) new_obj.get("wind");
+        		JSONObject wthr_obj = (JSONObject) wthr.get(0);
+         		String current_date=(String) new_obj.get("dt_txt");
+        		Date date1=new SimpleDateFormat("yyyy-M-d HH:mm:ss").parse(current_date); 
+         		String current_time=current_date.substring(11, 19);
+         		current_date=current_date.substring(0, 10);
+
             	
             	if(i==0)
             	{
             		JLabel temp ;
-            		
-            		JSONArray wthr = (JSONArray) new_obj.get("weather");
-            		
-            		JSONObject wthr_obj = (JSONObject) wthr.get(0);
-            		
+         	
             		temp = map.get("lblNewLabel");
-            		temp.setIcon(new ImageIcon("img\\"+wthr_obj.get("icon")+".jpg"));
+            		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+".jpg")));
             		
             		temp = map.get("lblNewLabel_1");
-            		temp.setIcon(new ImageIcon("img\\"+wthr_obj.get("icon")+"b.jpg"));
+            		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+"b.jpg")));
             		
             		temp = map.get("lblNewLabel_1_1");
-            		temp.setIcon(new ImageIcon("img\\"+wthr_obj.get("icon")+"b.jpg"));
+            		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+"b.jpg")));
             		
-            		ImageIcon imageIcon = new ImageIcon("img\\"+wthr_obj.get("icon")+".png"); 
+            		ImageIcon imageIcon = new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+".png")); 
             		Image image = imageIcon.getImage(); 
-            		Image newimg = image.getScaledInstance(45, 45 ,  java.awt.Image.SCALE_SMOOTH);   
+            		Image newimg = image.getScaledInstance(50, 50 ,  java.awt.Image.SCALE_SMOOTH);   
             		imageIcon = new ImageIcon(newimg);
             		
             		temp = map.get("currenti");
@@ -117,8 +130,106 @@ class weather
             		temp = map.get("currenti_1");
             		temp.setIcon(imageIcon);
             		
+            		String str=captlised(""+wthr_obj.get("description"));
+            		
+            		temp = map.get("condition");
+            		temp.setText(" "+str);
+            		
+            		temp = map.get("condition_1");
+            		temp.setText(""+str);
+            		
+            		temp = map.get("current");
+            		temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
+            		
+            		temp = map.get("current_1");
+            		temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
+            		
+            		temp = map.get("minl");
+            		temp.setText(""+Math.round((Double) mainy.get("temp_min"))+"\u00B0");
+            		
+            		temp = map.get("minl_1");
+            		temp.setText(""+Math.round((Double) mainy.get("temp_min"))+"\u00B0");
+            		
+            		temp = map.get("maxl");
+            		temp.setText(""+Math.round((Double) mainy.get("temp_max"))+"\u00B0");
+            		
+            		temp = map.get("maxl_1");
+            		temp.setText(""+Math.round((Double) mainy.get("temp_max"))+"\u00B0");
+            		
+            		temp = map.get("humidity");
+            		temp.setText(""+mainy.get("humidity")+"%");
+            		
+            		temp = map.get("pressure");
+            		temp.setText(""+mainy.get("pressure")+"hPa");
+            		
+            		temp = map.get("sea_pressure");
+            		temp.setText(""+mainy.get("sea_level")+"hPa");
+
+            		temp = map.get("wind");
+            		temp.setText(""+windy.get("speed")+" m/s");
+
+            		temp = map.get("wind_degree");
+            		temp.setText(""+windy.get("deg")+"\u00B0");
+
+            		temp = map.get("visibility");
+            		temp.setText(""+(((long) new_obj.get("visibility"))/1000)+" Km");
+            		
+            		temp = map.get("city_1");
+            		temp.setText(""+cityy.get("name"));
+
+            		temp = map.get("city");
+            		temp.setText(""+cityy.get("name"));
+
+            		temp = map.get("city_2");
+            		temp.setText(""+cityy.get("name"));
+            		
+            		prev_date=(String) new_obj.get("dt_txt");
+            		prev_date=prev_date.substring(0, 10);
+            		 
             		
             	}
+            	
+            	if(i>1 && i<8)
+            	{
+            		JLabel temp;
+            		
+            		temp = map.get("next_temp_"+(i-2));
+            		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+".png")));
+            		
+            		temp = map.get("temp_next_"+(i-2));
+            		temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
+           
+                	SimpleDateFormat sdf = new SimpleDateFormat("hh aa");
+//                	System.out.println("Given time in AM/PM: "+sdf.format(date1).toUpperCase());
+                	
+                	
+                	temp = map.get("hour_next_"+(i-2));
+            		temp.setText(sdf.format(date1));           		
+            	}
+            	
+            	if(!(prev_date.equals(current_date)) && current_time.equals("09:00:00") && !(current_date.equals(today_date)))
+            	{
+            		JLabel temp;
+            		Format formatter = new SimpleDateFormat("EEEE"); 
+            		temp = map.get("weak_icon_"+(j));
+            		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+".png")));
+            		
+            		temp = map.get("week_min_"+(j));
+            		temp.setText(""+Math.round((Double) mainy.get("temp_min"))+"\u00B0");
+           
+            		temp = map.get("week_max_"+(j));
+            		temp.setText(""+Math.round((Double) mainy.get("temp_max"))+"\u00B0");
+            		
+            		temp = map.get("week_name_"+(j));
+            		temp.setText(""+formatter.format(date1)); 
+            		
+//            		System.out.println(current_date+" "+current_time+" "+today_date);
+           
+            		prev_date=current_date;
+            		j++;
+            		
+            	}
+            	
             	
             }
 
@@ -154,7 +265,7 @@ class weather
 		JLabel current_1 = new JLabel("55\u00B0");
 		current_1.setForeground(Color.WHITE);
 		current_1.setFont(new Font("Poor Richard", Font.PLAIN, 150));
-		current_1.setBounds(46, 192, 196, 150);
+		current_1.setBounds(46, 192, 350, 150);
 		panel.add(current_1);
 		
 		JLabel arrw1_1 = new JLabel("\t\u2191");
@@ -183,8 +294,8 @@ class weather
 		
 		JLabel condition_1 = new JLabel("Clear Sky");
 		condition_1.setForeground(Color.WHITE);
-		condition_1.setFont(new Font("Poor Richard", Font.BOLD, 30));
-		condition_1.setBounds(101, 102, 308, 58);
+		condition_1.setFont(new Font("Poor Richard", Font.BOLD, 24));
+		condition_1.setBounds(101, 102, 339, 58);
 		panel.add(condition_1);
 		
 		JLabel currenti_1 = new JLabel();
@@ -604,7 +715,7 @@ class weather
 		JLabel current = new JLabel("55\u00B0");
 		current.setFont(new Font("Poor Richard", Font.PLAIN, 150));
 		current.setForeground(Color.WHITE);
-		current.setBounds(15, 530, 196, 150);
+		current.setBounds(15, 530, 350, 150);
 		frame.getContentPane().add(current);
 		
 
@@ -647,9 +758,9 @@ class weather
 		frame.getContentPane().add(minl);
 		
 		JLabel condition = new JLabel("Clear Sky");
-		condition.setFont(new Font("Poor Richard", Font.BOLD, 30));
+		condition.setFont(new Font("Poor Richard", Font.BOLD, 25));
 		condition.setForeground(Color.WHITE);
-		condition.setBounds(70, 436, 308, 58);
+		condition.setBounds(70, 436, 339, 58);
 		frame.getContentPane().add(condition);
 
 		JLabel currenti = new JLabel("");
@@ -734,6 +845,19 @@ class weather
 		
 		
 	}
+	
+	
+	public static String captlised(String str){  
+	    String words[]=str.split("\\s");  
+	    String capitalizeWord="";  
+	    for(String w:words){  
+	        String first=w.substring(0,1);  
+	        String afterfirst=w.substring(1);  
+	        capitalizeWord+=first.toUpperCase()+afterfirst+" ";  
+	    }  
+	    return capitalizeWord.trim();  
+	}  
+	
 	
 }
 
