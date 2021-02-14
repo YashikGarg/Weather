@@ -1,11 +1,19 @@
 package weather;
 
 import javax.swing.JFrame;
+import weather.data_city;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+
 import java.awt.BorderLayout;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.Format;
@@ -13,12 +21,18 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.PatternSyntaxException;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.GridBagConstraints;
@@ -32,33 +46,58 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import java.awt.Font;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-class weather
+class weather implements ActionListener
 {
-	JFrame frame;
-//	JLabel current_1,city_1,currenti_1,condition_1,minl_1,maxl_1,next_temp_0,hour_next_0,temp_next_0,next_temp_1,hour_next_1,temp_next_1,next_temp_2,hour_next_2,temp_next_2,next_temp_3,hour_next_3,temp_next_3,next_temp_4,hour_next_4,temp_next_4,next_temp_5,hour_next_5,temp_next_5,week_name_0,weak_icon_0,week_min_0,week_max_0,week_name_1,weak_icon_1,week_min_1,week_max_1,week_name_2,weak_icon_2,week_min_2,week_max_2;
-	HashMap<String,JLabel> map ; 
+	JFrame frame,loading;
+	HashMap<String,JLabel> map ;HashMap<String,JTextField> mapy ;
+	String search_this;
 	
 	
-	weather(JFrame frame)
+	
+	weather(JFrame frame) throws IOException
 	{
 		this.frame=frame;
+		
+		loading =  new JFrame("loading");
+		
+		JLabel lblNewLabel_1 = new JLabel("Loading . . .");
+		lblNewLabel_1.setForeground(Color.WHITE);
+		lblNewLabel_1.setFont(new Font("Poor Richard", Font.BOLD, 35));
+		lblNewLabel_1.setBounds(178, 118, 147, 52);
+		loading.getContentPane().add(lblNewLabel_1);
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(new ImageIcon(getClass().getClassLoader().getResource("weather.gif")));
+		lblNewLabel.setBounds(0, 0, 499, 304);
+		loading.getContentPane().add(lblNewLabel);
+		loading.setBounds(420, 210, 500, 320);
+		loading.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		loading.getContentPane().setLayout(null);
+		loading.setVisible(true);
+		
 		render();
-		api();
+		api("1278860");
 	}
 	
 	//api call here
 	
-	public void api()
+	public void api(String idy)
 	{
 		
 		try {
-		URL url = new URL("http://api.openweathermap.org/data/2.5/forecast?q=london&units=metric&APPID=8032cb689d95229e594b7c5751da6355");
+		URL url = new URL("http://api.openweathermap.org/data/2.5/forecast?id="+idy+"&units=metric&APPID=8032cb689d95229e594b7c5751da6355");
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -139,23 +178,59 @@ class weather
             		temp.setText(""+str);
             		
             		temp = map.get("current");
-            		temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
-            		
+            		try 
+            		{
+            			temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp")+"\u00B0");
+            		}
             		temp = map.get("current_1");
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
-            		
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp")+"\u00B0");
+            		}
             		temp = map.get("minl");
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp_min"))+"\u00B0");
-            		
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp_min")+"\u00B0");
+            		}
             		temp = map.get("minl_1");
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp_min"))+"\u00B0");
-            		
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp_min")+"\u00B0");
+            		}
             		temp = map.get("maxl");
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp_max"))+"\u00B0");
-            		
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp_max")+"\u00B0");
+            		}
             		temp = map.get("maxl_1");
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp_max"))+"\u00B0");
-            		
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp_max")+"\u00B0");
+            		}
             		temp = map.get("humidity");
             		temp.setText(""+mainy.get("humidity")+"%");
             		
@@ -185,7 +260,10 @@ class weather
             		
             		prev_date=(String) new_obj.get("dt_txt");
             		prev_date=prev_date.substring(0, 10);
-            		 
+            		
+            		JTextField tempy;
+            		tempy=mapy.get("search");
+            		tempy.setText(""+cityy.get("name"));
             		
             	}
             	
@@ -197,14 +275,20 @@ class weather
             		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+".png")));
             		
             		temp = map.get("temp_next_"+(i-2));
+            		try {
             		temp.setText(""+Math.round((Double) mainy.get("temp"))+"\u00B0");
-           
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp")+"\u00B0");
+            		}
                 	SimpleDateFormat sdf = new SimpleDateFormat("hh aa");
 //                	System.out.println("Given time in AM/PM: "+sdf.format(date1).toUpperCase());
                 	
                 	
                 	temp = map.get("hour_next_"+(i-2));
-            		temp.setText(sdf.format(date1));           		
+            		temp.setText(sdf.format(date1)); 
+            		
             	}
             	
             	if(!(prev_date.equals(current_date)) && current_time.equals("09:00:00") && !(current_date.equals(today_date)))
@@ -215,11 +299,23 @@ class weather
             		temp.setIcon(new ImageIcon(getClass().getClassLoader().getResource(""+wthr_obj.get("icon")+".png")));
             		
             		temp = map.get("week_min_"+(j));
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp_min"))+"\u00B0");
-           
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp_min")+"\u00B0");
+            		}
             		temp = map.get("week_max_"+(j));
+            		try 
+            		{
             		temp.setText(""+Math.round((Double) mainy.get("temp_max"))+"\u00B0");
-            		
+            		}
+            		catch(Exception e)
+            		{
+            			temp.setText(""+mainy.get("temp_max")+"\u00B0");
+            		}
             		temp = map.get("week_name_"+(j));
             		temp.setText(""+formatter.format(date1)); 
             		
@@ -232,8 +328,8 @@ class weather
             	
             	
             }
-
-       
+            
+            loading.dispose();
         }
 
     } //try end 
@@ -247,14 +343,14 @@ class weather
 	//api call end here
 	
 	//render element
-	public void render()
+	public void render() throws IOException
 	{
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");  
 		   LocalDateTime now = LocalDateTime.now();  
-		   
+		   JSONArray arry = data_city.city_data();
 		   map = new HashMap<String,JLabel>();
-		   
+		   mapy = new HashMap<String,JTextField>();
 		
 		JPanel panel = new JPanel();
 		panel.setBounds(419, 0, 419, 680);
@@ -491,13 +587,13 @@ class weather
 		JLabel week_min_0 = new JLabel("53\u00B0");
 		week_min_0.setForeground(Color.LIGHT_GRAY);
 		week_min_0.setFont(new Font("Poor Richard", Font.BOLD, 25));
-		week_min_0.setBounds(290, 160, 45, 45);
+		week_min_0.setBounds(290, 160, 100, 45);
 		panel_1.add(week_min_0);
 		
 		JLabel week_max_0 = new JLabel("89\u00B0");
 		week_max_0.setForeground(Color.WHITE);
 		week_max_0.setFont(new Font("Poor Richard", Font.BOLD, 25));
-		week_max_0.setBounds(235, 160, 45, 45);
+		week_max_0.setBounds(235, 160, 100, 45);
 		panel_1.add(week_max_0);
 		
 		JLabel week_name_1 = new JLabel("Monday\r\n");
@@ -518,13 +614,13 @@ class weather
 		JLabel week_min_1 = new JLabel("53\u00B0");
 		week_min_1.setForeground(Color.LIGHT_GRAY);
 		week_min_1.setFont(new Font("Poor Richard", Font.BOLD, 25));
-		week_min_1.setBounds(290, 210, 45, 45);
+		week_min_1.setBounds(290, 210, 100, 45);
 		panel_1.add(week_min_1);
 		
 		JLabel week_max_1 = new JLabel("89\u00B0");
 		week_max_1.setForeground(Color.WHITE);
 		week_max_1.setFont(new Font("Poor Richard", Font.BOLD, 25));
-		week_max_1.setBounds(235, 210, 45, 45);
+		week_max_1.setBounds(235, 210, 100, 45);
 		panel_1.add(week_max_1);
 		
 		JLabel week_name_2 = new JLabel("Monday\r\n");
@@ -545,13 +641,13 @@ class weather
 		JLabel week_min_2 = new JLabel("53\u00B0");
 		week_min_2.setForeground(Color.LIGHT_GRAY);
 		week_min_2.setFont(new Font("Poor Richard", Font.BOLD, 25));
-		week_min_2.setBounds(290, 260, 45, 45);
+		week_min_2.setBounds(290, 260, 100, 45);
 		panel_1.add(week_min_2);
 		
 		JLabel week_max_2 = new JLabel("89\u00B0");
 		week_max_2.setForeground(Color.WHITE);
 		week_max_2.setFont(new Font("Poor Richard", Font.BOLD, 25));
-		week_max_2.setBounds(235, 260, 45, 45);
+		week_max_2.setBounds(235, 260, 100, 45);
 		panel_1.add(week_max_2);
 		
 		JPanel panel2 = new JPanel();
@@ -576,9 +672,22 @@ class weather
         searchb.setBorderPainted(false);
         searchb.setContentAreaFilled(false);
         searchb.setOpaque(false);
-		searchb.setIcon(new ImageIcon("img\\search.png"));
+		searchb.setIcon(new ImageIcon(getClass().getClassLoader().getResource("search.png")));
 		searchb.setBounds(337, 120, 49, 30);
 		panel2.add(searchb);
+		searchb.addActionListener ( new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+				deploy_table(arry);
+				
+				
+				
+			} 
+			
+        });
 		
 		JLabel lblNewLabel_2_2 = new JLabel(dtf.format(now)+" ");
 		lblNewLabel_2_2.setHorizontalAlignment(SwingConstants.CENTER);
@@ -601,7 +710,7 @@ class weather
 		panel_2.setLayout(null);
 		
 		JLabel lblNewLabel_3 = new JLabel("");
-		lblNewLabel_3.setIcon(new ImageIcon("img\\windmill.png"));
+		lblNewLabel_3.setIcon(new ImageIcon(getClass().getClassLoader().getResource("windmill.png")));
 		lblNewLabel_3.setBounds(23, 0, 143, 186);
 		panel_2.add(lblNewLabel_3);
 		
@@ -631,7 +740,7 @@ class weather
 		panel_2.add(wind_degree);
 		
 		JLabel lblNewLabel_4 = new JLabel("");
-		lblNewLabel_4.setIcon(new ImageIcon("img\\wind.png"));
+		lblNewLabel_4.setIcon(new ImageIcon(getClass().getClassLoader().getResource("wind.png")));
 		lblNewLabel_4.setBounds(240, 76, 44, 51);
 		panel_2.add(lblNewLabel_4);
 		
@@ -642,7 +751,7 @@ class weather
 		panel2.add(panel_2_1);
 		
 		JLabel lblNewLabel_3_1 = new JLabel("");
-		lblNewLabel_3_1.setIcon(new ImageIcon("img\\humidity.png"));
+		lblNewLabel_3_1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("humidity.png")));
 		lblNewLabel_3_1.setBounds(23, 0, 143, 186);
 		panel_2_1.add(lblNewLabel_3_1);
 		
@@ -672,7 +781,7 @@ class weather
 		panel_2_1.add(visibility);
 		
 		JLabel lblNewLabel_4_1 = new JLabel("");
-		lblNewLabel_4_1.setIcon(new ImageIcon("img\\eye.png"));
+		lblNewLabel_4_1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("eye.png")));
 		lblNewLabel_4_1.setBounds(250, 76, 33, 51);
 		panel_2_1.add(lblNewLabel_4_1);
 		
@@ -684,7 +793,7 @@ class weather
 		
 		JLabel lblNewLabel_3_1_1 = new JLabel("");
 		lblNewLabel_3_1_1.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel_3_1_1.setIcon(new ImageIcon("img\\barometer.png"));
+		lblNewLabel_3_1_1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("barometer.png")));
 		lblNewLabel_3_1_1.setBounds(0, 0, 140, 90);
 		panel_2_1_1.add(lblNewLabel_3_1_1);
 		
@@ -841,7 +950,7 @@ class weather
 		map.put("lblNewLabel", lblNewLabel);
 		map.put("lblNewLabel_1", lblNewLabel_1);
 		map.put("lblNewLabel_1_1", lblNewLabel_1_1);
-		
+		mapy.put("search", search);
 		
 		
 	}
@@ -856,6 +965,160 @@ class weather
 	        capitalizeWord+=first.toUpperCase()+afterfirst+" ";  
 	    }  
 	    return capitalizeWord.trim();  
+	}
+	
+	//function deploy table start
+	
+	public  void deploy_table(JSONArray arry)
+	{
+		search_this="";
+		JFrame f=new JFrame("City data");    
+	    String column[]={"Country","city"}; 
+	    
+	    JPanel panel = new JPanel();
+		panel.setBounds(24, 100, 645, 325);
+		f.getContentPane().add(panel);
+		panel.setLayout(new BorderLayout(0, 0));
+	    
+	    DefaultTableModel model = new DefaultTableModel();
+	    JTable jt=new JTable(model);
+	    model.addColumn("Country");
+	    model.addColumn("City");
+	    model.addColumn("City Id");
+	    final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(model);
+	      jt.setRowSorter(sorter);
+	      JScrollPane sp=new JScrollPane(jt);    
+			panel.add(sp);
+	      String[] countries = new String[]{"Afghanistan", "Aland Islands", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bonaire, Saint Eustatius and Saba", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos Islands", "Colombia", "Comoros", "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Curacao", "Cyprus", "Czech Republic", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands", "Faroe Islands", "Fiji", "Finland", "France", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "North Korea", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Palestinian Territory", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Republic of the Congo", "Reunion", "Romania", "Russia", "Rwanda", "Saint Barthelemy", "Saint Helena", "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Sint Maarten", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Svalbard and Jan Mayen", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "U.S. Virgin Islands", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican", "Venezuela", "Vietnam", "Wallis and Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe"};
+	      
+	      JLabel label = new JLabel("Country : ");
+	      label.setBounds(24, 27, 70, 14);
+		  f.getContentPane().add(label);
+		  
+	      JComboBox filterText = new JComboBox(countries);
+	      filterText.setBounds(91, 23, 575, 22);
+		  f.getContentPane().add(filterText);
+
+	      JLabel label1 = new JLabel("City : ");
+	      label1.setBounds(24, 65, 46, 14);
+		  f.getContentPane().add(label1);
+			
+	      final JTextField filterText1 = new JTextField("");
+	      filterText1.setBounds(91, 62, 575, 20);
+		  f.getContentPane().add(filterText1);
+		  filterText1.setColumns(10);
+	      
+	      
+	      
+	    JButton button = new JButton("Select City And Click On This Button To Get City Data");
+	      filterText.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	            String text = filterText.getSelectedItem().toString();
+	            if(text.length() == 0) {
+	               sorter.setRowFilter(null);
+	            } else {
+	               try {
+	                  sorter.setRowFilter(RowFilter.regexFilter(text,0));
+	                  
+	               } catch(PatternSyntaxException pse) {
+	                     System.out.println("Bad regex pattern");
+	               }
+	             }
+	         }
+	      });
+	      
+	      button.setBounds(24, 440, 645, 23);
+			f.getContentPane().add(button);
+	      
+	      filterText1.getDocument().addDocumentListener((DocumentListener) new DocumentListener()  {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+				start_search();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+				start_search();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			public void start_search()
+			{
+				String text = filterText1.getText();
+				
+				if(!text.equals(""))
+				{
+					text=captlised(text);
+				}
+	            if(text.length() == 0) {
+	               sorter.setRowFilter(null);
+	            } else {
+	               try {
+	            	   List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(2);
+	            	   filters.add(RowFilter.regexFilter(filterText.getSelectedItem().toString(), 0));
+	            	   filters.add(RowFilter.regexFilter(text, 1));
+	                  sorter.setRowFilter(RowFilter.andFilter(filters));
+	                  
+	               } catch(PatternSyntaxException pse) {
+	                     System.out.println("Bad regex pattern");
+	               }
+	             }
+			}
+	    	  
+	      });
+	      
+	    
+	      
+	    for(int i=0;i<arry.size();i++)
+	    {
+	    	JSONObject new_obj = (JSONObject) arry.get(i);
+	    	model.addRow(new Object[] { new_obj.get("country"),new_obj.get("name"),new_obj.get("geonameid") });
+	    }
+	    	    
+	    jt.addMouseListener(new MouseAdapter() {
+	        public void mousePressed(MouseEvent me) {
+	        	int row = jt.getSelectedRow();
+	        	search_this=""+jt.getValueAt(row, 2);
+	        	System.out.println(jt.getValueAt(row, 1));
+	        }
+	    }); 
+	    
+	    button.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+		            if(!search_this.equals(""))
+		            api(search_this);
+		            f.dispose();
+		         }
+		      });
+	    
+//	    JScrollPane sp=new JScrollPane(jt);    
+//	    f.add(sp);
+	    
+	    f.getContentPane().setLayout(null);
+	    f.setBounds(330,120,700,510);
+	    f.setVisible(true); 
+	}
+	
+	//function deploy table end
+	
+	
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if(e.getSource() == "searchb")
+		{
+			System.out.println("ddd");
+		}
+		System.out.println("dddaa");
+		
 	}  
 	
 	
@@ -864,8 +1127,10 @@ class weather
 public class main {
 	
 	
-	public static void frame()
+	public static void frame() throws IOException
 	{
+		
+		
 		JFrame frame =  new JFrame("hii");
 		new weather(frame);
 		frame.setBounds(40, 5, 1269, 713);
