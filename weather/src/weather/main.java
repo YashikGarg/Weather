@@ -38,6 +38,8 @@ import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.FlowLayout;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+
 import java.awt.Color;
 import java.awt.Window.Type;
 import javax.swing.JLabel;
@@ -335,7 +337,9 @@ class weather implements ActionListener
     } //try end 
 		
 	catch (Exception e) {
-        e.printStackTrace();
+//        e.printStackTrace();
+        JFrame errory=new JFrame();  
+	    JOptionPane.showMessageDialog(errory,"Soory cannot Fetch Data Of This City Please Try Later","Error",JOptionPane.WARNING_MESSAGE); 
     }
 	
 	}//function end
@@ -1131,7 +1135,7 @@ public class main {
 	{
 		
 		
-		JFrame frame =  new JFrame("hii");
+		JFrame frame =  new JFrame("Weather Apllication By Yashik");
 		new weather(frame);
 		frame.setBounds(40, 5, 1269, 713);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
