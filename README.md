@@ -42,7 +42,7 @@ ____
 
 - [x] 🔖 <i>I used <a href="http://www.jtattoo.net/">JTattoo-1.6.13</a> for beautifull themes !!!</i>
 - [x] ☕ <i>I used <a href="https://github.com/fangyidong/json-simple">json-simple-1.1</a> for reading JSON Files !!!</i>
-- [x] ⛈ <i>API i used <a href="http://openweathermap.org/api">Open Weather</a> for fetching data !!!</i>
+- [x] ⛈ <i>API i used <a href="http://openweathermap.org/api">Open Weather</a>!!!</i>
 
 ___
 > <b>If You ♥ It Please Drop a ⭐ 😉</b>
